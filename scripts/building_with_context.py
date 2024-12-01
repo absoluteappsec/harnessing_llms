@@ -2,6 +2,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnableMap
 
 # Load Env Variables
 from dotenv import load_dotenv
@@ -30,15 +31,20 @@ You are a highly skilled and detail-oriented code review assistant with expertis
 
 Your task is to analyze the provided source code of a web application and answer specific questions about its functionality, security, and technologies. Always maintain a professional tone and prioritize clarity in your responses.
 
-<context>
-{context}
-</context>
+<code>
+{code}
+</code>
 
 In your analysis:
 - Clearly identify and explain the purpose and technologies used in the codebase.
 - Highlight critical security mechanisms such as authentication and authorization.
 - Provide details on libraries, tools, and frameworks, organized by their categories and roles in the application.
 - When relevant, make recommendations for improving security or functionality.
+
+Use the following context to help answer questions:
+<context>
+{context}
+</context>
 """
 
 # CORRECT/FORMAL WAY TO PERFORM PROMPTING
@@ -58,9 +64,16 @@ llm = ChatBedrock(
 )
 
 
+knowledge_base_file_path = "../data/juice_shop_knowledgebase.md"
+with open(knowledge_base_file_path, 'r', encoding='utf-8') as file:
+    context = file.read()
 
 chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
+     {
+        "code": retriever,
+        "question": RunnablePassthrough(),
+        "context": RunnablePassthrough()
+    }
     | prompt
     | llm
     | StrOutputParser()
@@ -96,5 +109,7 @@ Focus on identifying key dependencies and their roles in the application's archi
 
 # This is an optional addition to stream the output in chunks
 # for a chat-like experience
-for chunk in chain.stream(user_question):
-    print(chunk, end="", flush=True)
+#for chunk in chain.onv(inputs):
+#    print(chunk, end="", flush=True)
+response = chain.invoke(input=user_question, context=context)
+print(response)
