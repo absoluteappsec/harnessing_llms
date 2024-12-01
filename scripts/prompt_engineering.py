@@ -61,10 +61,7 @@ chain = (
     | StrOutputParser()
 )
 
-# This is an optional addition to stream the output in chunks
-# for a chat-like experience
-for chunk in chain.stream(
-    """Tell me the following information about the code base I am providing you:
+user_question = """Tell me the following information about the code base I am providing you:
      - Purpose of the application
      - Web technologies used in the application
      - Templating language used in the application
@@ -85,5 +82,8 @@ for chunk in chain.stream(
         - CSS Frameworks (ex: bootstrap, tailwind)
         - widgets / UI components
     """
-    ):
+
+# This is an optional addition to stream the output in chunks
+# for a chat-like experience
+for chunk in chain.stream(user_question):
     print(chunk, end="", flush=True)
