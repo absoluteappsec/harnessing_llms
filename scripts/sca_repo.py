@@ -26,6 +26,7 @@ else:
         print(f"An error occurred while cloning the repository: {e}")
 
 
+# THIS LOADS ONLY PYTHON EXTENSION FILES, CHANGE AS NEEDED
 python_files = {}
 # Traverse the directory recursively
 for root, _, files in os.walk(local_path):
@@ -111,9 +112,12 @@ text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=8000, chunk_overlap=100
 )
 
+# CHANGE AS DESIRED
+name_of_scan_results_db = "repo_scan_results_faiss"
+
 texts = text_splitter.split_documents(docs)
 db = FAISS.from_documents(texts, embeddings)
-db.save_local("../vector_databases/repo_scan_results_faiss")
+db.save_local(f'../vector_databases/{name_of_scan_results_db}')
 
 
 

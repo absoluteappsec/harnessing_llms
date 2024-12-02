@@ -11,9 +11,10 @@ load_dotenv()
 from langchain_aws import ChatBedrock
 from langchain_aws import BedrockEmbeddings
 
+# CHANGE AS NEEDED
+name_of_faiss_db = "repo_scan_results_faiss"
 
-
-faiss_db_path = "../vector_databases/repo_scan_results_faiss"
+faiss_db_path = f"../vector_databases/{name_of_faiss_db}"
 db = FAISS.load_local(
     faiss_db_path, 
     BedrockEmbeddings(model_id='amazon.titan-embed-text-v1'),
@@ -21,7 +22,7 @@ db = FAISS.load_local(
 )
 
 retriever = db.as_retriever(
-    search_type="mmr", # Also test "similarity"
+    search_type="mmr",
     search_kwargs={"k": 100},
 )
 
@@ -69,6 +70,7 @@ chain = (
     | StrOutputParser()
 )
 
+# CHANGE AS DESIRED
 user_question = """
 Tell me about only the highest criticality security 
 vulnerabilities found in the codebase. The categories should
@@ -80,6 +82,7 @@ loosely pertain to:
 - Unsafe deserialization
 - Remote Code Execution
 - Hardcoded Secrets
+- CSRF
 """
 
 for chunk in chain.stream(user_question):
