@@ -108,6 +108,5 @@ Please analyze the codebase I am providing and answer the following:
 Focus on identifying key dependencies and their roles in the application's architecture. Where possible, highlight any potential risks or outdated libraries.
 """
 
-print('performing analysis....')
-response = chain.invoke(input=user_question, context=context)
-print(response)
+for chunk in chain.stream(user_question, {"context":context}):
+                print(chunk, end="", flush=True)
