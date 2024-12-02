@@ -109,9 +109,6 @@ Please analyze the codebase I am providing and answer the following:
 Focus on identifying key dependencies and their roles in the application's architecture. Where possible, highlight any potential risks or outdated libraries.
 """
 
-# This is an optional addition to stream the output in chunks
-# for a chat-like experience
-#for chunk in chain.onv(inputs):
-#    print(chunk, end="", flush=True)
+print('performing analysis....')
 response = chain.invoke(input=user_question, context=context)
 print(response)
