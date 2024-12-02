@@ -8,6 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptT
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+import time
 
 
 # Load Env Variables
@@ -169,8 +170,12 @@ for file_path, content in python_files.items():
     title = f"\n\nAnalyzing code from {filename}"
     print(title)
     print("=" * len(title))
-    for chunk in chain.stream({"question": question,"context": code}):
-        print(chunk, end="", flush=True)
+    try:
+        for chunk in chain.stream({"question": question,"context": code}):
+            print(chunk, end="", flush=True)
+    except Exception as e:
+        time.sleep(30)
+        continue
 
 
 
