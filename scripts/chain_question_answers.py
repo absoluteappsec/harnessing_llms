@@ -10,7 +10,7 @@ load_dotenv()
 
 # Define the LLM
 llm = ChatBedrock(
-    model_id="anthropic.claude-3-haiku-20240307-v1:0",
+    model_id="us.anthropic.claude-3-haiku-20240307-v1:0",
     model_kwargs={"temperature": 0.5},
 )
 
@@ -26,7 +26,12 @@ first_prompt = ChatPromptTemplate.from_messages(
 second_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", "You are a helpful assistant."),
-        ("human", "Based on this response: {previous_response}, answer the following question: {next_question}")
+        (
+            "human",
+            """The response provided earlier was: {previous_response}.
+            Using this response as a basis, compare the key benefits of Python against those of JavaScript. 
+            Focus on highlighting both strengths and weaknesses of each language."""
+        ),
     ]
 )
 
@@ -41,14 +46,17 @@ chain = RunnableSequence(
     }) | second_prompt | llm | StrOutputParser()  # Generate final response for the second prompt
 )
 
+
+
+
+
 # Inputs for the chain
 inputs = {
     "question": "What are the primary benefits of using Python?",
-    "next_question": "How do these benefits compare to JavaScript?",
+    "next_question": f"Compare those key benefits against using JavaScript.",
 }
 
-# Execute the chain
-results = chain.invoke(inputs)
 
-# Access the final response
-print("Final Response:", results)
+
+for chunk in chain.stream(inputs):
+    print(chunk, end="", flush=True)
