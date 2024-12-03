@@ -4,64 +4,45 @@ from langchain_core.prompts import PromptTemplate
 from langchain.agents import AgentExecutor
 from pydantic import BaseModel, Field
 from langchain.tools import BaseTool
-from langchain_community.document_loaders.generic import GenericLoader
-from langchain_community.document_loaders.parsers import LanguageParser
-from langchain.text_splitter import Language
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_aws import BedrockEmbeddings
 from langchain_community.vectorstores import FAISS
-import git
-import os
+from langchain_aws import BedrockEmbeddings
 from typing import Optional, Type
-
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
-
-# Load Env Variables
+from langchain.callbacks.manager import CallbackManagerForToolRun
 from dotenv import load_dotenv
+import os
+
+# Load environment variables
 load_dotenv()
 
 class SearchInput(BaseModel):
     query: str = Field(description="should be a search query")
 
 class CustomSearchTool(BaseTool):
-    name: str = "custom_search"  # Explicitly type all attributes
+    name: str = "custom_search"
     description: str = "Useful for when you need to answer questions about code"
-    args_schema: Type[SearchInput] = SearchInput  # Explicitly set schema
+    args_schema: Type[SearchInput] = SearchInput
 
-
-    def _run(
-        self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
-    ) -> str:
+    def _run(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         """Use the tool."""
-        # CHANGE THE FAISS DB PATH TO THE RELEVANT DB PATH
         faiss_db_path = "../vector_databases/vtm_faiss"
         db = FAISS.load_local(
             faiss_db_path, 
             BedrockEmbeddings(model_id='amazon.titan-embed-text-v1'),
             allow_dangerous_deserialization=True
         )
-        val =  db.similarity_search(query)
-        return val
-        #return "LangChain"
+        return db.similarity_search(query)
 
-    async def _arun(
-        self, query: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
-    ) -> str:
-        """Use the tool asynchronously."""
+    async def _arun(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         raise NotImplementedError("custom_search does not support async")
 
-
-
+# Define tools and LLM
 tools = [CustomSearchTool()]
-
 llm = ChatBedrock(
     model_id='anthropic.claude-3-haiku-20240307-v1:0',
     model_kwargs={"temperature": 0.6},
 )
 
+# Define instructions and prompt
 instructions = """You are an agent designed to detect insecure direct object 
 reference vulnerabilities. 
 
@@ -133,8 +114,9 @@ Begin!
 New input: {input}
 {agent_scratchpad}
 """
-
 prompt = PromptTemplate.from_template(instructions)
+
+# Create agent and executor
 agent = create_react_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(
     agent=agent, 
@@ -143,12 +125,21 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True
 )
 
-input = """
-@login_required
-@user_passes_test(can_create_project)
-def update_user_active(request):
-    user_id = request.GET.get('user_id')
-    User.objects.filter(id=user_id).update(is_active=False)
-"""
+def analyze_code(input_code: str) -> dict:
+    """
+    Analyze the given code using the agent_executor and return the result.
+    """
+    response = agent_executor.invoke({"input": input_code})
+    return response
 
-agent_executor.invoke({"input": input})
+if __name__ == "__main__":
+    # Example input
+    input_code = """
+    @login_required
+    @user_passes_test(can_create_project)
+    def update_user_active(request):
+        user_id = request.GET.get('user_id')
+        User.objects.filter(id=user_id).update(is_active=False)
+    """
+    result = analyze_code(input_code)
+    print(result)
