@@ -1,9 +1,13 @@
 import os
 import git
 from langchain_aws import ChatBedrock
+from langchain_aws import BedrockEmbeddings
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
 import time
 
 
@@ -42,6 +46,9 @@ llm = ChatBedrock(
     model_id='anthropic.claude-3-haiku-20240307-v1:0',
     model_kwargs={"temperature": 0.2},
 )
+
+embeddings = BedrockEmbeddings(model_id='amazon.titan-embed-text-v1')
+
 system_prompt_template = """
 You are a helpful secure code review assistant who is given acess to a
 code base stored in vector format. You will be asked questions about that code.
@@ -131,7 +138,7 @@ few_shot_prompt = FewShotChatMessagePromptTemplate(
 
 final_prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", prompt),
+        ("system", system_prompt_template),
         few_shot_prompt,
         ("human", """<question>{question}</question>""")
     ]
