@@ -36,7 +36,7 @@ class CustomSearchTool(BaseTool):
         self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
-        # Repo details to clone
+        # CHANGE THE FAISS DB PATH TO THE RELEVANT DB PATH
         faiss_db_path = "../vector_databases/vtm_faiss"
         db = FAISS.load_local(
             faiss_db_path, 
@@ -89,6 +89,14 @@ run the search in order to get the answer.
 If it does not seem like you can write code to answer the question, 
 just return "I don't know" as the answer.
 
+If a function name is referenced but you are unsure of its purpose,
+search the code base for the function name to determine its purpose.
+Do this until you are satisified with the answer.
+
+Only tell the user that the code is secure if you can definitively prove
+that the code is secure. If you cannot definitively prove that the code is secure,
+then you must assume that the code is insecure.
+
 TOOLS:
 ------
 
@@ -105,17 +113,22 @@ Action Input: the input to the action
 Observation: the result of the action
 ```
 
-When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
+When you have a response to say to the Human, 
+or if you do not need to use a tool, 
+you MUST use the format:
 
 ```
 Thought: Do I need to use a tool? No
 Final Answer: [your response here]
 ```
 
-Begin!
+Your Final Answer should be in JSON format 
+with the following fields:
 
-Previous conversation history:
-{chat_history}
+- is_insecure: (bool) whether the code is considered insecure
+- reason: (str) the reason the code is considered insecure
+
+Begin!
 
 New input: {input}
 {agent_scratchpad}
@@ -123,7 +136,12 @@ New input: {input}
 
 prompt = PromptTemplate.from_template(instructions)
 agent = create_react_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+agent_executor = AgentExecutor(
+    agent=agent, 
+    tools=tools, 
+    verbose=True, 
+    handle_parsing_errors=True
+)
 
 input = """
 @login_required
@@ -133,4 +151,4 @@ def update_user_active(request):
     User.objects.filter(id=user_id).update(is_active=False)
 """
 
-agent_executor.invoke({"input": input, "chat_history": ""})
+agent_executor.invoke({"input": input})
