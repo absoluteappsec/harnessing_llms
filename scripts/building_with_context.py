@@ -81,31 +81,32 @@ chain = (
 )
 
 user_question = """
-Please analyze the codebase I am providing and answer the following:
+Please analyze the codebase and create a comprehensive threat model by addressing the following:
 
-1. **Purpose and Technologies**:
-   - What is the primary purpose of the application?
-   - What web technologies are used in the application (e.g., JavaScript, Flask)?
-   - What templating language is used in the application (e.g., Pug, Handlebars)?
-   - What database is used in the application (e.g., PostgreSQL, MongoDB)?
+1. **Assets and Trust Boundaries**:
+   - What are the key assets (data, functionality) that need protection?
+   - What are the trust boundaries in the application?
+   - What sensitive data flows exist between components?
 
-2. **Security Mechanisms**:
-   - What authentication mechanisms are used in the application?
-   - What authorization mechanisms are used in the application?
+2. **Threat Actors and Attack Surfaces**:
+   - Who are the potential threat actors targeting this application?
+   - What are the primary attack surfaces exposed by the application?
+   - What entry points could attackers use to compromise the system?
 
-3. **Libraries and Tools**:
-   For the following categories, list the libraries, tools, or frameworks used, including their name, purpose, and version:
-   - Security
-   - Testing
-   - Documentation
-   - Build tools
-   - Database
-   - Authentication / Authorization
-   - HTML Templating (e.g., Pug, Handlebars)
-   - CSS Frameworks (e.g., Bootstrap, Tailwind)
-   - Widgets / UI components
+3. **Vulnerabilities and Security Controls**:
+   - What potential vulnerabilities exist in the current implementation?
+   - What security controls are currently in place?
+   - Are there any missing or inadequate security controls?
 
-Focus on identifying key dependencies and their roles in the application's architecture. Where possible, highlight any potential risks or outdated libraries.
+4. **Risk Assessment**:
+   - What are the highest risk threats to the application?
+   - What potential impact could successful attacks have?
+   - What is the likelihood of different types of attacks?
+
+5. **Security Recommendations**:
+   - What additional security controls should be implemented?
+   - What architectural changes could improve security?
+   - What security testing should be prioritized?
 """
 
 for chunk in chain.stream(user_question, {"context":context}):
