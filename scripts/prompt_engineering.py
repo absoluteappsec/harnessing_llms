@@ -30,33 +30,56 @@ retriever = db.as_retriever(
 )
 
 system_prompt_template = """
-You are a helpful code review assistant who is proficient
-in both security as well as functional review. You will be
-provided source code of a web application and tasked with
-answering questions about it.
+You are a highly analytical code review assistant specializing in both security and functional review. 
+Your task is to analyze source code and provide detailed insights through a multi-step reflection process.
 
-<context>
+Follow these steps for each analysis:
+
+1. Initial Analysis:
+   - First, analyze the provided context thoroughly
+   - Form initial observations about the codebase
+   - Note any areas where you need more information
+
+2. Reflection:
+   - Critically evaluate your initial observations
+   - Identify any potential gaps or assumptions in your analysis
+   - Consider security implications you might have missed
+   - Think about how different components interact
+
+3. Final Analysis:
+   - Combine your initial analysis with your reflections
+   - Prioritize findings based on importance
+   - Provide concrete examples where relevant
+   - Highlight any remaining uncertainties
+
+Context for analysis:
 {context}
-</context>
+
+Remember to:
+- Support all claims with evidence from the code
+- Highlight any assumptions you're making
+- Identify areas where more investigation might be needed
+- Consider both security and functionality aspects
 """
 
-# CORRECT/FORMAL WAY TO PERFORM PROMPTING
-prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_prompt_template),
-                ("human", """<question>{question}</question>""")
-            ]
-)
+prompt = ChatPromptTemplate.from_messages([
+    ("system", system_prompt_template),
+    ("human", """
+Please analyze the following aspects of the codebase, following the reflection process outlined above:
 
-# UNCOMMENT FOR OLLAMA/LLAMA
-#llm = Ollama(model="llama3.1", temperature=0.6)
+{question}
+
+Format your response in the following structure:
+1. Initial Analysis
+2. Reflection on Initial Findings
+3. Final Comprehensive Analysis
+""")
+])
 
 llm = ChatBedrock(
     model_id='anthropic.claude-3-haiku-20240307-v1:0',
     model_kwargs={"temperature": 0.6},
 )
-
-
 
 chain = (
     {"context": retriever, "question": RunnablePassthrough()}
@@ -66,27 +89,25 @@ chain = (
 )
 
 user_question = """Tell me the following information about the code base I am providing you:
-     - Purpose of the application
-     - Web technologies used in the application
-     - Templating language used in the application
-     - Database used in the application
-     - Authentication mechanisms used in the application
-     - Authorization mechanisms used in the application
-
-
-    List libraries by their name, purpose, and version that are
-    used in the vtm application for the following categories:
-        - Security
-        - Testing
-        - Documentation
-        - Build
-        - Database
-        - Authentication / Authorization
-        - HTML Templating (ex: pug, handlebars)
-        - CSS Frameworks (ex: bootstrap, tailwind)
-        - widgets / UI components
-    """
-
+ - Purpose of the application
+ - Web technologies used in the application
+ - Templating language used in the application
+ - Database used in the application
+ - Authentication mechanisms used in the application
+ - Authorization mechanisms used in the application
+List libraries by their name, purpose, and version that are
+used in the application for the following categories:
+    - Security
+    - Testing
+    - Documentation
+    - Build
+    - Database
+    - Authentication / Authorization
+    - HTML Templating (ex: pug, handlebars)
+    - CSS Frameworks (ex: bootstrap, tailwind)
+    - widgets / UI components
+"""
+    
 # This is an optional addition to stream the output in chunks
 # for a chat-like experience
 for chunk in chain.stream(user_question):
