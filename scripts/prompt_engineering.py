@@ -77,7 +77,7 @@ Format your response in the following structure:
 ])
 
 llm = ChatBedrock(
-    model_id='anthropic.claude-3-5-haiku-20241022-v1:0',
+    model_id='us.anthropic.claude-3-5-haiku-20241022-v1:0',
     model_kwargs={"temperature": 0.6},
 )
 
