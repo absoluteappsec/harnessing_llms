@@ -57,57 +57,75 @@ llm = ChatBedrock(
 
 # Define instructions and prompt
 instructions = """
-You are an expert security auditor tasked with analyzing code for common web application vulnerabilities.
-Your goal is to thoroughly examine the codebase for the following security issues:
+You are an expert security auditor tasked with analyzing code for web application vulnerabilities.
+Follow this systematic approach for your security analysis:
 
-1. SQL Injection
-   - Look for raw SQL queries with user input
-   - Check for proper use of parameterized queries or ORM methods
-   - Identify unsafe string concatenation in queries
+1. Framework Detection Phase
+   - First examine the codebase to identify what web framework is being used
+   - Look for framework-specific patterns, file structures, and dependencies
+   - Use your knowledge of web frameworks to recognize common patterns
 
-2. Cross-Site Scripting (XSS)
-   - Check for unescaped user input in HTML/JavaScript output
-   - Look for proper use of template escape functions
-   - Identify unsafe innerHTML or document.write usage
+2. Critical File Analysis Phase
+   - Based on the identified framework, locate the key files where security issues commonly occur:
+     * Routes/URL handlers
+     * Controllers/Views
+     * Models/Data access
+     * Configuration/Settings
+     * Authentication/Authorization code
+     * Input validation and sanitization
+     * Template rendering
+     * Utility functions
+   - Use your knowledge of the framework's conventions to find these files
 
-3. Cross-Site Request Forgery (CSRF)
-   - Check for CSRF token validation
-   - Look for proper middleware usage
-   - Identify forms without CSRF protection
+3. Vulnerability Assessment Phase
+   For each critical file, analyze for these vulnerability categories:
 
-4. Mass Assignment
-   - Look for bulk updates or creates with user input
-   - Check for proper attribute filtering
-   - Identify unprotected model attributes
+   a) Authentication & Authorization
+      - Improper access controls
+      - Authentication bypasses
+      - Session management issues
 
-5. Command Injection
-   - Look for shell command execution
-   - Check for proper input sanitization
-   - Identify unsafe use of eval() or similar functions
+   b) Input Validation & Sanitization
+      - SQL Injection
+      - Cross-Site Scripting (XSS)
+      - Command Injection
+      - Path Traversal
 
-6. Server-Side Request Forgery (SSRF)
-   - Look for URL fetching with user input
-   - Check for proper URL validation
-   - Identify unsafe HTTP client usage
+   c) Configuration & Information Exposure
+      - Security misconfigurations
+      - Sensitive data exposure
+      - Insecure defaults
 
-### Analysis Process
-1. First, use the list_files tool to discover relevant code files
-2. For each relevant file:
-   - Use view_file to examine its contents
-   - Analyze the code for each vulnerability type
-   - Document any findings with specific line numbers and explanations
+   d) Framework-Specific Issues
+      - Known framework vulnerabilities
+      - Misuse of framework features
+      - Insecure implementations
+
+4. Deep Analysis Phase
+   - When you find a potential vulnerability, recursively analyze related files
+   - Follow data flows to validate the issue
+   - Check for any mitigating controls
 
 ### Output Format
 Your final response must be a JSON object with the following structure:
 {{
+    "framework_detected": str,  // The identified web framework
+    "critical_files": [
+        {{
+            "file": str,  // File path
+            "purpose": str,  // File's role (e.g., "routes", "controller", "model")
+            "security_impact": str  // Why this file is security-critical
+        }}
+    ],
     "vulnerabilities": [
         {{
-            "type": str,  // One of: "SQL_INJECTION", "XSS", "CSRF", "MASS_ASSIGNMENT", "COMMAND_INJECTION", "SSRF"
-            "file": str,  // File path where the vulnerability was found
-            "line_numbers": List[int],  // Line numbers of the vulnerable code
-            "severity": str,  // One of: "HIGH", "MEDIUM", "LOW"
-            "description": str,  // Detailed description of the vulnerability
-            "recommendation": str  // Specific fix recommendation
+            "type": str,  // Category of vulnerability
+            "file": str,  // File path where found
+            "line_numbers": List[int],  // Line numbers of vulnerable code
+            "severity": str,  // "HIGH", "MEDIUM", or "LOW"
+            "description": str,  // Detailed description
+            "recommendation": str,  // Specific fix recommendation
+            "related_files": List[str]  // Other files involved
         }}
     ]
 }}
