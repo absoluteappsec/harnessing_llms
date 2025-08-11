@@ -8,16 +8,17 @@ from langchain_community.document_loaders import DirectoryLoader
 
 # Load Env Variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # For BedRock
 from langchain_aws import BedrockEmbeddings
 
 
-repo_url = 'https://github.com/juice-shop/juice-shop.git'
-repo_path = './repo'
+repo_url = "https://github.com/juice-shop/juice-shop.git"
+repo_path = "./repo"
 
-if os.path.isdir(repo_path) and os.path.isdir(os.path.join(repo_path, '.git')):
+if os.path.isdir(repo_path) and os.path.isdir(os.path.join(repo_path, ".git")):
     print("Directory already contains a git repository.")
 else:
     try:
@@ -27,15 +28,13 @@ else:
         print(f"An error occurred while cloning the repository: {e}")
 
 
-embeddings = BedrockEmbeddings(model_id='amazon.titan-embed-text-v1')
+embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0")
 
 
 loader = DirectoryLoader(repo_path, glob="**/*.*", silent_errors=True)  # Load all files
 documents = loader.load()
 
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=8000, chunk_overlap=100
-)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=8000, chunk_overlap=100)
 texts = text_splitter.split_documents(documents)
 db = FAISS.from_documents(texts, embeddings)
-db.save_local("juice_shop.faiss")
+db.save_local("../vector_databases/juice_shop.faiss")

@@ -7,24 +7,25 @@ from langchain_aws import BedrockEmbeddings
 
 # Load environment variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 faiss_db_path = "../vector_databases/acmeco_sec_guide_faiss"
 db = FAISS.load_local(
-    faiss_db_path, 
-    BedrockEmbeddings(model_id='amazon.titan-embed-text-v1'),
-    allow_dangerous_deserialization=True
+    faiss_db_path,
+    BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0"),
+    allow_dangerous_deserialization=True,
 )
 
 retriever = db.as_retriever(
     search_type="mmr",
-    search_kwargs={"k": 8},
+    search_kwargs={"k": 30},
 )
 
 # Initialize the ChatBedrock LLM
 llm = ChatBedrock(
     model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
-    model_kwargs={"temperature": 0.1}
+    model_kwargs={"temperature": 0.1},
 )
 
 # Define the chat template
@@ -48,7 +49,7 @@ Assistant:
 prompt = PromptTemplate(template=chat_template)
 
 chat_chain = (
-     {
+    {
         "question": RunnablePassthrough(),
         "context": retriever,
     }
@@ -56,6 +57,7 @@ chat_chain = (
     | llm
     | StrOutputParser()
 )
+
 
 # Command-line chat application
 def chat():
@@ -72,6 +74,7 @@ def chat():
                 print(chunk, end="", flush=True)
         except Exception as e:
             print(f"Error: {e}")
+
 
 if __name__ == "__main__":
     chat()

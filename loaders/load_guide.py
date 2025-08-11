@@ -4,12 +4,13 @@ from langchain_community.document_loaders import PyPDFLoader
 
 # Load Env Variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # For BedRock
 from langchain_aws import BedrockEmbeddings
 
-embeddings = BedrockEmbeddings(model_id='amazon.titan-embed-text-v1')
+embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0")
 
 loader = PyPDFLoader(
     "../data/Acme_Co_Security_Guide.pdf",
@@ -17,9 +18,7 @@ loader = PyPDFLoader(
 
 documents = loader.load()
 
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=8000, chunk_overlap=100
-)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=8000, chunk_overlap=100)
 
 texts = text_splitter.split_documents(documents)
 db = FAISS.from_documents(texts, embeddings)

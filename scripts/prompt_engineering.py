@@ -9,6 +9,7 @@ set_debug(True)
 
 # Load Env Variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # For BedRock
@@ -16,16 +17,15 @@ from langchain_aws import ChatBedrock
 from langchain_aws import BedrockEmbeddings
 
 
-
 faiss_db_path = "../vector_databases/juice_shop.faiss"
 db = FAISS.load_local(
-    faiss_db_path, 
-    BedrockEmbeddings(model_id='amazon.titan-embed-text-v1'),
-    allow_dangerous_deserialization=True
+    faiss_db_path,
+    BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0"),
+    allow_dangerous_deserialization=True,
 )
 
 retriever = db.as_retriever(
-    search_type="mmr", # Also test "similarity"
+    search_type="mmr",  # Also test "similarity"
     search_kwargs={"k": 100},
 )
 
@@ -37,9 +37,12 @@ Context for analysis:
 {context}
 """
 
-prompt = ChatPromptTemplate.from_messages([
-    ("system", system_prompt_template),
-    ("human", """
+prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", system_prompt_template),
+        (
+            "human",
+            """
 Please analyze the following aspects of the codebase, following the reflection process outlined above:
 
 {question}
@@ -48,11 +51,13 @@ Format your response in the following structure:
 1. Initial Analysis
 2. Reflection on Initial Findings
 3. Final Comprehensive Analysis
-""")
-])
+""",
+        ),
+    ]
+)
 
 llm = ChatBedrock(
-    model_id='us.anthropic.claude-3-5-haiku-20241022-v1:0',
+    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
     model_kwargs={"temperature": 0.6},
 )
 
@@ -82,7 +87,7 @@ used in the application for the following categories:
     - CSS Frameworks (ex: bootstrap, tailwind)
     - widgets / UI components
 """
-    
+
 # This is an optional addition to stream the output in chunks
 # for a chat-like experience
 for chunk in chain.stream(user_question):

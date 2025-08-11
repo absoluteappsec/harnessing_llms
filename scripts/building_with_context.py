@@ -5,6 +5,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 # Load Env Variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # For BedRock
@@ -12,16 +13,15 @@ from langchain_aws import ChatBedrock
 from langchain_aws import BedrockEmbeddings
 
 
-
 faiss_db_path = "../vector_databases/juice_shop.faiss"
 db = FAISS.load_local(
-    faiss_db_path, 
-    BedrockEmbeddings(model_id='amazon.titan-embed-text-v1'),
-    allow_dangerous_deserialization=True
+    faiss_db_path,
+    BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0"),
+    allow_dangerous_deserialization=True,
 )
 
 retriever = db.as_retriever(
-    search_type="mmr", # Also test "similarity"
+    search_type="mmr",  # Also test "similarity"
     search_kwargs={"k": 8},
 )
 
@@ -50,30 +50,30 @@ Use the following context to help answer questions:
 
 # CORRECT/FORMAL WAY TO PERFORM PROMPTING
 prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_prompt_template),
-                ("human", """<question>{question}</question>""")
-            ]
+    [
+        ("system", system_prompt_template),
+        ("human", """<question>{question}</question>"""),
+    ]
 )
 
 # UNCOMMENT FOR OLLAMA/LLAMA
-#llm = Ollama(model="llama3.1", temperature=0.6)
+# llm = Ollama(model="llama3.1", temperature=0.6)
 
 llm = ChatBedrock(
-    model_id='us.anthropic.claude-3-5-haiku-20241022-v1:0',
+    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
     model_kwargs={"temperature": 0.6},
 )
 
 
 knowledge_base_file_path = "../data/juice_shop_knowledgebase.md"
-with open(knowledge_base_file_path, 'r', encoding='utf-8') as file:
+with open(knowledge_base_file_path, "r", encoding="utf-8") as file:
     context = file.read()
 
 chain = (
-     {
+    {
         "code": retriever,
         "question": RunnablePassthrough(),
-        "context": RunnablePassthrough()
+        "context": RunnablePassthrough(),
     }
     | prompt
     | llm
@@ -109,5 +109,5 @@ Please analyze the codebase and create a comprehensive threat model by addressin
    - What security testing should be prioritized?
 """
 
-for chunk in chain.stream(user_question, {"context":context}):
-                print(chunk, end="", flush=True)
+for chunk in chain.stream(user_question, {"context": context}):
+    print(chunk, end="", flush=True)
