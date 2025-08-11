@@ -16,6 +16,11 @@ import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 load_dotenv()
 
+txt_file = 'data/dynamic_analysis_output.txt'
+
+with open(txt_file, 'r') as f:
+    content = f.read()
+
 #llm = Ollama(model="deepseek-r1", temperature=0.2)
 
 llm = ChatBedrock(
@@ -25,33 +30,9 @@ llm = ChatBedrock(
 
 embeddings = BedrockEmbeddings(model_id='amazon.titan-embed-text-v2:0')
 
-faiss_db_path = "vector_databases/vtm_session.faiss"
-db = FAISS.load_local(
-    faiss_db_path, 
-    embeddings,
-    allow_dangerous_deserialization=True
-)
-
-retriever = db.as_retriever(
-    search_type="mmr", # Also test "similarity"
-    search_kwargs={"k": 8},
-)
-
 system_prompt_template = """
-You are a highly skilled and detail-oriented code review assistant with expertise in both application security and functional code analysis. Your role is to assist developers and security professionals by providing accurate, concise, and actionable insights.
-
-Your task is to analyze the provided source code of a web application and answer specific questions about its functionality, security, and technologies. Always maintain a professional tone and prioritize clarity in your responses.
-
-In your analysis:
-- Clearly identify and explain the purpose and technologies used in the codebase.
-- Highlight critical security mechanisms such as authentication and authorization.
-- Provide details on libraries, tools, and frameworks, organized by their categories and roles in the application.
-- When relevant, make recommendations for improving security or functionality.
-
-Use the following context to help answer questions:
-<context>
-{context}
-</context>
+You are a highly analytical agent specializing in both security and functional review. 
+Your task is to prioritize previous analysis of HTTP requests based on their potential security risks.
 
 Remember to:
 - Identify areas where more investigation might be needed
@@ -68,29 +49,32 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 question = """"
-Please analyze the the full HTTP Session for possibility user-controlled parameters that could be used for injection exploits such as SQL Injection, Command Injection, or other types of injection attacks:
+Prioritize the following analysis of HTTP Requests based on their potential security risks, output all endpoints that are potentially vulnerable to injection attacks
+
+<content>
+{content}
+</content>
 
 ONLY respond with the following information:
 - URL: (str) The full URL of the request in the format: http://example.com/path
+- Potential Severity: (str) The severity of the potential vulnerability (e.g., High, Medium, Low)
 - HTTP Method: (str) The HTTP Method of the request
 - Parameters: (str) The parameters of the request
 - Possible Injection: (str) Yes or No
 - Justification: (str) A brief justification ONLY if injection exploit may be possible
+- Test Instructions: (str) Instructions on how to test the endpoint for vulnerabilities
 
 DO NOT PROVIDE ADDITIONAL INFORMATION.
-
-Analyze each request in the session until all requests have been analyzed.
 """
 
 chain = (
-     {
-        "context": retriever,
-        "question": RunnablePassthrough()
-    }
+    { "question": RunnablePassthrough()}
     | prompt
     | llm
     | StrOutputParser()
 )
 
-for chunk in chain.stream(question):
-                print(chunk, end="", flush=True)
+for chunk in chain.stream({"question": question, "content": content}):
+    print(chunk, end="", flush=True)
+
+print("=" * 50)

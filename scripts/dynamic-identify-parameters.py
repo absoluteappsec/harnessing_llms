@@ -16,12 +16,6 @@ import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 load_dotenv()
 
-xml_file = 'data/vtm-session.xml'
-
-xml = ET.parse(xml_file)
-root = xml.getroot()
-print(f"Parsing {len(root)} requests")
-
 #llm = Ollama(model="deepseek-r1", temperature=0.2)
 
 llm = ChatBedrock(
@@ -31,12 +25,26 @@ llm = ChatBedrock(
 
 embeddings = BedrockEmbeddings(model_id='amazon.titan-embed-text-v2:0')
 
+faiss_db_path = "vector_databases/vtm_session.faiss"
+db = FAISS.load_local(
+    faiss_db_path, 
+    embeddings,
+    allow_dangerous_deserialization=True
+)
+
+retriever = db.as_retriever(
+    search_type="mmr", # Also test "similarity"
+    search_kwargs={"k": 8},
+)
+
 system_prompt_template = """
 You are a highly analytical agent specializing in both security and functional review. 
 Your task is to analyze an HTTP Request for user-controllable parameters that could be used for injection exploits.
 
 Context for analysis:
+<context>
 {context}
+</context>
 
 Remember to:
 - Identify areas where more investigation might be needed
@@ -53,11 +61,7 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 question = """"
-Please analyze the following HTTP Request for possibility user-controlled parameters that could be used for injection exploits such as SQL Injection, Command Injection, or other types of injection attacks:
-
-<content>
-{content}
-</content>
+Please analyze the full HTTP Session for possibility user-controlled parameters that could be used for injection exploits such as SQL Injection, Command Injection, or other types of injection attacks:
 
 ONLY respond with the following information:
 - URL: (str) The full URL of the request in the format: http://example.com/path
@@ -67,38 +71,19 @@ ONLY respond with the following information:
 - Justification: (str) A brief justification ONLY if injection exploit may be possible
 
 DO NOT PROVIDE ADDITIONAL INFORMATION.
+
+Analyze each request in the session until all requests have been analyzed.
 """
 
 chain = (
-    { "context": RunnablePassthrough() , "question": RunnablePassthrough()}
+     {
+        "context": retriever,
+        "question": RunnablePassthrough()
+    }
     | prompt
     | llm
     | StrOutputParser()
 )
 
-count = 1
-urls = []
-for item in root:
-    print(f"=> {count}/{len(root)}: {item.find('url').text}")
-    # Skip duplicate URLs, if needed
-    #url = item.find('url').text
-    #if url in urls:
-    #    print("=> Duplicate URL, skipping")
-    #    continue
-    #urls.append(item.find('url').text)
-    request = item.find("request").text
-    if item.find("request").attrib['base64'] == 'true':
-        request = base64.b64decode(request).decode('utf-8')
-    count = count+1
-
-    try: 
-        for chunk in chain.stream({"question": question, "content": request}):
-            print(chunk, end="", flush=True)
-            #response_array.append(chunk)
-  
-
-        print("\n=> Complete\n")
-    except Exception as e:
-        print(f"=> Error: {e}")
-
-print("=" * 50)
+for chunk in chain.stream(question):
+                print(chunk, end="", flush=True)
