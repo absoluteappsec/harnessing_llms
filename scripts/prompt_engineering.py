@@ -26,40 +26,15 @@ db = FAISS.load_local(
 
 retriever = db.as_retriever(
     search_type="mmr", # Also test "similarity"
-    search_kwargs={"k": 8},
+    search_kwargs={"k": 100},
 )
 
 system_prompt_template = """
 You are a highly analytical code review assistant specializing in both security and functional review. 
 Your task is to analyze source code and provide detailed insights through a multi-step reflection process.
 
-Follow these steps for each analysis:
-
-1. Initial Analysis:
-   - First, analyze the provided context thoroughly
-   - Form initial observations about the codebase
-   - Note any areas where you need more information
-
-2. Reflection:
-   - Critically evaluate your initial observations
-   - Identify any potential gaps or assumptions in your analysis
-   - Consider security implications you might have missed
-   - Think about how different components interact
-
-3. Final Analysis:
-   - Combine your initial analysis with your reflections
-   - Prioritize findings based on importance
-   - Provide concrete examples where relevant
-   - Highlight any remaining uncertainties
-
 Context for analysis:
 {context}
-
-Remember to:
-- Support all claims with evidence from the code
-- Highlight any assumptions you're making
-- Identify areas where more investigation might be needed
-- Consider both security and functionality aspects
 """
 
 prompt = ChatPromptTemplate.from_messages([
