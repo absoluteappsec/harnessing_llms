@@ -1,0 +1,371 @@
+Request https://vtm.rdpt.dev/:
+- URL: http://vtm.rdpt.dev/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters present in the request that could be used for injection exploits.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/common-scripts.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/common-scripts.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.customSelect.min.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.customSelect.min.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.dcjqaccordion.2.7.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.dcjqaccordion.2.7.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.nicescroll.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.nicescroll.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.scrollTo.min.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.scrollTo.min.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.sparkline.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/jquery.sparkline.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/respond.min.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/respond.min.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/backend/slidebars.min.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/backend/slidebars.min.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/bootstrap.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/bootstrap.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a static JavaScript file request with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/static/taskManager/js/jquery-1.8.3.min.js:
+- URL: https://vtm.rdpt.dev/static/taskManager/js/jquery-1.8.3.min.js
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: This is a request for a static JavaScript library file with no user-controllable parameters.
+
+Request https://vtm.rdpt.dev/taskManager/:
+- URL: https://vtm.rdpt.dev/taskManager/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/45/62/:
+- URL: https://vtm.rdpt.dev/taskManager/45/62/
+- HTTP Method: GET
+- Parameters: 45/62 (in URL path)
+- Possible Injection: Yes
+- Justification: URL path contains numeric parameters that could potentially be manipulated for path traversal or injection attempts
+
+Request https://vtm.rdpt.dev/taskManager/45/62/note_delete/113:
+- URL: https://vtm.rdpt.dev/taskManager/45/62/note_delete/113
+- HTTP Method: GET
+- Parameters: 45/62/note_delete/113
+- Possible Injection: Yes
+- Justification: URL path parameters contain numeric and text segments that could potentially be manipulated for path traversal or injection attempts
+
+Request https://vtm.rdpt.dev/taskManager/45/62/note_edit/111:
+- URL: https://vtm.rdpt.dev/taskManager/45/62/note_edit/111
+- HTTP Method: GET
+- Parameters: 45/62/note_edit/111
+- Possible Injection: Yes
+- Justification: URL path segments appear to contain numeric identifiers which could potentially be vulnerable to path traversal or injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/45/62/note_edit/111:
+- URL: https://vtm.rdpt.dev/taskManager/45/62/note_edit/111
+- HTTP Method: POST
+- Parameters: csrfmiddlewaretoken, note_title, text
+- Possible Injection: Yes
+- Justification: User-controlled parameters like note_title and text could potentially be used for injection attacks if not properly sanitized, especially the text parameter which allows free-form input
+
+Request https://vtm.rdpt.dev/taskManager/45/62:
+- URL: https://vtm.rdpt.dev/taskManager/45/62
+- HTTP Method: GET
+- Parameters: 45/62 (in URL path)
+- Possible Injection: Yes
+- Justification: URL path parameters could potentially be vulnerable to path traversal or injection if not properly sanitized, especially with numeric/sequential identifiers
+
+Request https://vtm.rdpt.dev/taskManager/45/project_details/:
+- URL: https://vtm.rdpt.dev/taskManager/45/project_details/
+- HTTP Method: GET
+- Parameters: 45 (in the URL path)
+- Possible Injection: Yes
+- Justification: The numeric parameter in the URL path could potentially be vulnerable to numeric injection or parameter manipulation if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/45/task_complete/62:
+- URL: https://vtm.rdpt.dev/taskManager/45/task_complete/62
+- HTTP Method: GET
+- Parameters: 45, 62 (in URL path segments)
+- Possible Injection: Yes
+- Justification: URL path parameters could potentially be vulnerable to path traversal or injection if not properly sanitized, especially with numeric identifiers directly in the URL path
+
+Request https://vtm.rdpt.dev/taskManager/45/task_edit/62:
+- URL: https://vtm.rdpt.dev/taskManager/45/task_edit/62
+- HTTP Method: GET
+- Parameters: 45, 62 (in URL path segments)
+- Possible Injection: Yes
+- Justification: URL path contains numeric parameters that could potentially be manipulated for injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/45/task_edit/62:
+- URL: https://vtm.rdpt.dev/taskManager/45/task_edit/62
+- HTTP Method: POST
+- Parameters: csrfmiddlewaretoken, task_title, text, task_duedate, task_completed
+- Possible Injection: Yes
+- Justification: Multiple user-controlled parameters like task_title and text could potentially be vulnerable to injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/45/upload/:
+- URL: http://vtm.rdpt.dev/taskManager/45/upload/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in the request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/45/upload/:
+- URL: https://vtm.rdpt.dev/taskManager/45/upload/
+- HTTP Method: POST
+- Parameters: name, url, csrfmiddlewaretoken, file
+- Possible Injection: Yes
+- Justification: The "url" and "name" parameters could potentially be vulnerable to injection attacks if not properly sanitized, as they are user-controllable input fields.
+
+Request https://vtm.rdpt.dev/taskManager/change_password:
+- URL: https://vtm.rdpt.dev/taskManager/change_password
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/change_password/:
+- URL: https://vtm.rdpt.dev/taskManager/change_password/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/change_password/:
+- URL: https://vtm.rdpt.dev/taskManager/change_password/
+- HTTP Method: POST
+- Parameters: new_password, confirm_password
+- Possible Injection: No
+- Justification:
+
+Request https://vtm.rdpt.dev/taskManager/dashboard:
+- URL: https://vtm.rdpt.dev/taskManager/dashboard
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/dashboard/:
+- URL: https://vtm.rdpt.dev/taskManager/dashboard/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/downloadprofilepic/1/:
+- URL: https://vtm.rdpt.dev/taskManager/downloadprofilepic/1/
+- HTTP Method: GET
+- Parameters: 1/ (in the URL path)
+- Possible Injection: Yes
+- Justification: The numeric parameter in the URL path could potentially be vulnerable to numeric injection or path traversal attacks if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/downloadprofilepic/2/:
+- URL: https://vtm.rdpt.dev/taskManager/downloadprofilepic/2/
+- HTTP Method: GET
+- Parameters: 2/ (in the URL path)
+- Possible Injection: Yes
+- Justification: The numeric parameter in the URL path could potentially be vulnerable to path traversal or numeric injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/downloadprofilepic/3/:
+- URL: https://vtm.rdpt.dev/taskManager/downloadprofilepic/3/
+- HTTP Method: GET
+- Parameters: 3 (in the URL path)
+- Possible Injection: Yes
+- Justification: The numeric parameter in the URL path could potentially be vulnerable to parameter manipulation or injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/downloadprofilepic/4/:
+- URL: https://vtm.rdpt.dev/taskManager/downloadprofilepic/4/
+- HTTP Method: GET
+- Parameters: 4/ (numeric parameter in URL path)
+- Possible Injection: Yes
+- Justification: Numeric parameter in URL path could potentially be vulnerable to path traversal or integer-based injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/downloadprofilepic/8/:
+- URL: https://vtm.rdpt.dev/taskManager/downloadprofilepic/8/
+- HTTP Method: GET
+- Parameters: 8/ (numeric parameter in URL path)
+- Possible Injection: Yes
+- Justification: Numeric parameter in URL path could potentially be vulnerable to path traversal or integer-based injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/forgot_password:
+- URL: https://vtm.rdpt.dev/taskManager/forgot_password
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/forgot_password/:
+- URL: https://vtm.rdpt.dev/taskManager/forgot_password/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/forgot_password/:
+- URL: https://vtm.rdpt.dev/taskManager/forgot_password/
+- HTTP Method: POST
+- Parameters: email=chris%40tm.com
+- Possible Injection: No
+- Justification:
+
+Request https://vtm.rdpt.dev/taskManager/forgot_password/:
+- URL: https://vtm.rdpt.dev/taskManager/forgot_password/
+- HTTP Method: POST
+- Parameters: email=chris-no%40tm.com
+- Possible Injection: No
+- Justification:
+
+Request https://vtm.rdpt.dev/taskManager/login/:
+- URL: https://vtm.rdpt.dev/taskManager/login/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/login/?next=/:
+- URL: http://vtm.rdpt.dev/taskManager/login/
+- HTTP Method: GET
+- Parameters: next=/
+- Possible Injection: No
+- Justification:
+
+Request https://vtm.rdpt.dev/taskManager/login/:
+- URL: https://vtm.rdpt.dev/taskManager/login/
+- HTTP Method: POST
+- Parameters: username=chris&password=test123
+- Possible Injection: Yes
+- Justification: Login parameters could potentially be vulnerable to SQL injection or authentication bypass if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/login:
+- URL: https://vtm.rdpt.dev/taskManager/login
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/manage_projects:
+- URL: https://vtm.rdpt.dev/taskManager/manage_projects
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in the request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/manage_projects/:
+- URL: https://vtm.rdpt.dev/taskManager/manage_projects/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in the request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/manage_projects/:
+- URL: https://vtm.rdpt.dev/taskManager/manage_projects/
+- HTTP Method: POST
+- Parameters: csrfmiddlewaretoken, userid, projectid
+- Possible Injection: Yes
+- Justification: User-controlled parameters like userid and projectid could potentially be vulnerable to SQL injection if not properly sanitized or parameterized.
+
+Request https://vtm.rdpt.dev/taskManager/profile/3:
+- URL: https://vtm.rdpt.dev/taskManager/profile/3
+- HTTP Method: GET
+- Parameters: 3 (in the URL path)
+- Possible Injection: Yes
+- Justification: The numeric parameter in the URL path could potentially be vulnerable to numeric injection or parameter manipulation attacks if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager/profile/3:
+- URL: https://vtm.rdpt.dev/taskManager/profile/3
+- HTTP Method: POST
+- Parameters: csrfmiddlewaretoken, first_name, last_name, email, groups, dob, ssn, picture
+- Possible Injection: Yes
+- Justification: The "groups" parameter contains comma-separated values and could potentially be vulnerable to injection if not properly sanitized, particularly the "admin_g" value which might allow privilege escalation attempts.
+
+Request https://vtm.rdpt.dev/taskManager/reset_password:
+- URL: https://vtm.rdpt.dev/taskManager/reset_password
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/reset_password/:
+- URL: https://vtm.rdpt.dev/taskManager/reset_password/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly exploited for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/search/:
+- URL: https://vtm.rdpt.dev/taskManager/search/
+- HTTP Method: GET
+- Parameters: None visible in the request
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/taskManager/search/?q=test:
+- URL: https://vtm.rdpt.dev/taskManager/search/
+- HTTP Method: GET
+- Parameters: q=test
+- Possible Injection: Yes
+- Justification: The 'q' parameter in the search URL could potentially be vulnerable to injection attacks if not properly sanitized, as it directly accepts user input without clear input validation.
+
+Request https://vtm.rdpt.dev/taskManager/task_list/:
+- URL: https://vtm.rdpt.dev/taskManager/task_list/
+- HTTP Method: GET
+- Parameters: None directly visible in the request
+- Possible Injection: Yes
+- Justification: The Referer header contains a search parameter 'q=test', which could potentially be vulnerable to injection if not properly sanitized
+
+Request https://vtm.rdpt.dev/taskManager:
+- URL: https://vtm.rdpt.dev/taskManager/45/upload/
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters are present in this request that could be directly used for injection attacks.
+
+Request https://vtm.rdpt.dev/uploads/db5e4880-4021-442c-8168-1fe48cae72a2/xss-image.svg:
+- URL: https://vtm.rdpt.dev/uploads/db5e4880-4021-442c-8168-1fe48cae72a2/xss-image.svg
+- HTTP Method: GET
+- Parameters: None
+- Possible Injection: No
+- Justification: No user-controllable parameters detected in the request that could be used for injection exploits.
+
