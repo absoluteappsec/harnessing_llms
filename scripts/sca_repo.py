@@ -11,12 +11,13 @@ from langchain_community.vectorstores import FAISS
 
 # Load Env Variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
-repo_url = 'https://github.com/redpointsec/vtm.git'
-local_path = './repo'
+repo_url = "https://github.com/redpointsec/vtm.git"
+local_path = "./repo"
 
-if os.path.isdir(local_path) and os.path.isdir(os.path.join(local_path, '.git')):
+if os.path.isdir(local_path) and os.path.isdir(os.path.join(local_path, ".git")):
     print("Directory already contains a git repository.")
 else:
     try:
@@ -31,24 +32,22 @@ python_files = {}
 # Traverse the directory recursively
 for root, _, files in os.walk(local_path):
     for file in files:
-        if file.endswith('.py'):
+        if file.endswith(".py"):
             file_path = os.path.join(root, file)
             try:
                 # Read the contents of the Python file
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     python_files[file_path] = f.read()
             except Exception as e:
                 print(f"Error reading {file_path}: {e}")
 
 
-
-
 llm = ChatBedrock(
-    model_id='us.anthropic.claude-3-5-haiku-20241022-v1:0',
+    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
     model_kwargs={"temperature": 0.2},
 )
 
-embeddings = BedrockEmbeddings(model_id='amazon.titan-embed-text-v1')
+embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0")
 
 system_prompt_template = """
 You are a helpful code review assistant who is 
@@ -63,10 +62,10 @@ tasked with answering questions about it.
 
 
 prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_prompt_template),
-                ("human", """<question>{question}</question>""")
-            ]
+    [
+        ("system", system_prompt_template),
+        ("human", """<question>{question}</question>"""),
+    ]
 )
 
 question = """"
@@ -84,7 +83,7 @@ for file_path, content in python_files.items():
     filename = file_path
     # Create a chain of operations to run the code through
     chain = (
-        { "context": RunnablePassthrough() , "question": RunnablePassthrough()}
+        {"context": RunnablePassthrough(), "question": RunnablePassthrough()}
         | prompt
         | llm
         | StrOutputParser()
@@ -95,32 +94,23 @@ for file_path, content in python_files.items():
     title = f"\n\nAnalyzing code from {filename}"
     print(title)
     print("=" * len(title))
-    for chunk in chain.stream({"question": question,"context": code}):
+    for chunk in chain.stream({"question": question, "context": code}):
         print(chunk, end="", flush=True)
         response_array.append(chunk)
 
-    flattened_response = "".join(response_array)    
+    flattened_response = "".join(response_array)
     document = Document(
-            page_content=flattened_response,
-            metadata={"filename": filename}
+        page_content=flattened_response, metadata={"filename": filename}
     )
 
     docs.append(document)
 
 
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=8000, chunk_overlap=100
-)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=8000, chunk_overlap=100)
 
 # CHANGE AS DESIRED
 name_of_scan_results_db = "repo_scan_results_faiss"
 
 texts = text_splitter.split_documents(docs)
 db = FAISS.from_documents(texts, embeddings)
-db.save_local(f'../vector_databases/{name_of_scan_results_db}')
-
-
-
-
-
-    
+db.save_local(f"../vector_databases/{name_of_scan_results_db}")

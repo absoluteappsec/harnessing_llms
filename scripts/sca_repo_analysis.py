@@ -5,6 +5,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 # Load Env Variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # For BedRock
@@ -16,9 +17,9 @@ name_of_faiss_db = "repo_scan_results_faiss"
 
 faiss_db_path = f"../vector_databases/{name_of_faiss_db}"
 db = FAISS.load_local(
-    faiss_db_path, 
-    BedrockEmbeddings(model_id='amazon.titan-embed-text-v1'),
-    allow_dangerous_deserialization=True
+    faiss_db_path,
+    BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0"),
+    allow_dangerous_deserialization=True,
 )
 
 retriever = db.as_retriever(
@@ -49,22 +50,19 @@ Respond in the following format:
 
 # CORRECT/FORMAL WAY TO PERFORM PROMPTING
 prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_prompt_template),
-                ("human", """<question>{question}</question>""")
-            ]
+    [
+        ("system", system_prompt_template),
+        ("human", """<question>{question}</question>"""),
+    ]
 )
 
 llm = ChatBedrock(
-    model_id='us.anthropic.claude-3-5-haiku-20241022-v1:0',
+    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
     model_kwargs={"temperature": 0.6},
 )
 
 chain = (
-     {
-        "context": retriever,
-        "question": RunnablePassthrough()
-    }
+    {"context": retriever, "question": RunnablePassthrough()}
     | prompt
     | llm
     | StrOutputParser()
@@ -86,4 +84,4 @@ loosely pertain to:
 """
 
 for chunk in chain.stream(user_question):
-                print(chunk, end="", flush=True)
+    print(chunk, end="", flush=True)
