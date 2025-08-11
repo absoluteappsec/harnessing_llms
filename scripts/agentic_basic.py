@@ -14,31 +14,38 @@ import os
 # Load environment variables
 load_dotenv()
 
+
 class SearchInput(BaseModel):
     query: str = Field(description="should be a search query")
+
 
 class CustomSearchTool(BaseTool):
     name: str = "custom_search"
     description: str = "Useful for when you need to answer questions about code"
     args_schema: Type[SearchInput] = SearchInput
 
-    def _run(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+    def _run(
+        self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
+    ) -> str:
         """Use the tool."""
         faiss_db_path = "../vector_databases/vtm_faiss"
         db = FAISS.load_local(
-            faiss_db_path, 
-            BedrockEmbeddings(model_id='amazon.titan-embed-text-v1'),
-            allow_dangerous_deserialization=True
+            faiss_db_path,
+            BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0"),
+            allow_dangerous_deserialization=True,
         )
         return db.similarity_search(query)
 
-    async def _arun(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+    async def _arun(
+        self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
+    ) -> str:
         raise NotImplementedError("custom_search does not support async")
+
 
 # Define tools and LLM
 tools = [CustomSearchTool()]
 llm = ChatBedrock(
-    model_id='us.anthropic.claude-3-5-haiku-20241022-v1:0',
+    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
     model_kwargs={"temperature": 0.6},
 )
 
@@ -113,11 +120,9 @@ prompt = PromptTemplate.from_template(instructions)
 # Create agent and executor
 agent = create_react_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(
-    agent=agent, 
-    tools=tools, 
-    verbose=True, 
-    handle_parsing_errors=True
+    agent=agent, tools=tools, verbose=True, handle_parsing_errors=True
 )
+
 
 def analyze_code(input_code: str) -> dict:
     """
@@ -125,6 +130,7 @@ def analyze_code(input_code: str) -> dict:
     """
     response = agent_executor.invoke({"input": input_code})
     return response
+
 
 if __name__ == "__main__":
     # Example input
