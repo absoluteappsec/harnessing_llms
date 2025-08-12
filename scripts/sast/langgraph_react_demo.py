@@ -122,14 +122,29 @@ def analyze_code(input_code: str) -> dict:
     """
     Analyze the given code using the agent_executor and return the result.
     """
-    response = agent_executor.invoke({"input": input_code})
+    # Use return_intermediate_steps=True to capture the thinking process
+    response = agent_executor.invoke(
+        {"input": input_code}, 
+        return_intermediate_steps=True
+    )
+    
+    # Print the thinking steps for visibility
+    if "intermediate_steps" in response and response["intermediate_steps"]:
+        print("\n🧠 Agent Thinking Process:")
+        print("-" * 40)
+        for i, (action, observation) in enumerate(response["intermediate_steps"], 1):
+            print(f"Step {i}:")
+            print(f"  Action: {action.tool} - {action.tool_input}")
+            print(f"  Observation: {observation}")
+            print()
+    
     return response
 
 
 # Simple LangGraph integration
 try:
     from langgraph.graph import StateGraph, END
-    from typing import TypedDict, Annotated
+    from typing import TypedDict
 
     class AgentState(TypedDict):
         input: str
