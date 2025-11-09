@@ -28,7 +28,7 @@ Please analyze the full HTTP Session a comprehensive assessment of the applicati
 
 - All URLs and Endpoints associated with the authentication process.
 - Include login, logout, forgot password, set password, registration and other authentication functions.
-- Consider session tokens used for authentication purposes.
+- Consider and identify session tokens used for authentication purposes.
 
 Output application authentication details as follows:
 
