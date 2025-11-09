@@ -1,0 +1,9 @@
+system_prompt_template = """
+Analyze source code and provide detailed security and functional insights as requested.
+
+Context for analysis:
+{context}
+"""
+
+user_question = """Tell me about the application, its functionality, and any potential security issues you can identify from the codebase provided in the context.
+"""

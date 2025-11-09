@@ -26,11 +26,12 @@ class HttpTool(BaseTool):
     args_schema: Type[HttpInput] = HttpInput
 
     def _run(
-        self, url: str, method: str = "GET", data: Optional[dict] = None, run_manager: Optional[CallbackManagerForToolRun] = None
+        self, url: dict, method: str = "GET", data: Optional[dict] = None, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
-        if method.upper() == "POST":
-            response = httpx.post(url, data=data)
+        print(f"Making {method} request to {url} with data: {data}")
+        if url["method"].upper() == "POST":
+            response = httpx.post(url, data=url["data"])
         else:
             response = httpx.get(url)
         headers = str(response.headers)
@@ -126,21 +127,24 @@ def run_agent(url: str) -> dict:
 
 if __name__ == "__main__":
     # Example input for GET request
-    url = "https://vtm.rdpt.dev/taskManager/login/?next=/"
-    result = run_agent(url)
-    print(result)
+    #url = "https://vtm.rdpt.dev/taskManager/login/?next=/"
+    #result = run_agent(url)
+    #print(result)
 
     # Example input for POST request
     # To run this, you would need to modify how the agent is invoked to handle structured input for the tool.
     # For example:
-    # post_input = {
-    #     "input": {
-    #         "tool_input": {
-    #             "url": "http://httpbin.org/post",
-    #             "method": "POST",
-    #             "data": {"key": "value"}
-    #         }
-    #     }
-    # }
-    # result = agent_executor.invoke(post_input)
-    # print(result)
+    url = "https://vtm.rdpt.dev/taskManager/login/"
+    method = "POST"
+    data = {"username": "admin", "password": "admin"}
+    post_input = {
+        "input": {
+            "tool_input": {
+                 "url": "https://vtm.rdpt.dev/taskManager/login/",
+                 "method": "POST",
+                 "data": {"username": "admin", "password": "admin"}
+            }
+        }
+    }
+    result = agent_executor.invoke(post_input)
+    print(result)
