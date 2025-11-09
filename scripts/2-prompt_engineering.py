@@ -26,28 +26,20 @@ db = FAISS.load_local(
 
 retriever = db.as_retriever(
     search_type="mmr",  # Also test "similarity"
-    search_kwargs={"k": 100},
+    search_kwargs={"k": 20},
 )
 
 system_prompt_template = """
 Analyze source code and provide detailed security and functional insights as requested.
 
-Context for analysis:
+Code for analysis:
 {context}
 """
 
 prompt = ChatPromptTemplate.from_messages(
     [
         ("system", system_prompt_template),
-        (
-            "human",
-            """
-Answer questions about the codebase:
-
-{question}
-
-""",
-        ),
+        ("human", """<question>{question}</question>"""),
     ]
 )
 
@@ -63,7 +55,8 @@ chain = (
     | StrOutputParser()
 )
 
-user_question = """Tell me about the application, its functionality, and any potential security issues you can identify from the codebase provided.
+user_question = """
+Tell me about the application, its functionality, libraries and framworks, and any potential security issues you can identify from the codebase provided in the context.
 """
 
 # This is an optional addition to stream the output in chunks
