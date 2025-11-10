@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 load_dotenv()
 
-xml_file = 'data/vtm-session.xml'
+xml_file = '../data/vtm-session.xml'
 
 xml = ET.parse(xml_file)
 root = xml.getroot()

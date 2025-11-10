@@ -9,15 +9,14 @@ from langchain.callbacks.manager import CallbackManagerForToolRun
 from dotenv import load_dotenv
 import os
 import httpx
+import json
 
 # Load environment variables
 load_dotenv()
 
 
 class HttpInput(BaseModel):
-    url: str = Field(description="a url to make a request to")
-    method: str = Field(description="the http method to use (GET or POST)", default="GET")
-    data: Optional[dict] = Field(description="the data to send with a POST request", default=None)
+    req: str = Field(description="data to send with the request, example: {'url': 'http://example.com/path', 'method': 'GET', 'data': {}}")
 
 
 class HttpTool(BaseTool):
@@ -26,17 +25,26 @@ class HttpTool(BaseTool):
     args_schema: Type[HttpInput] = HttpInput
 
     def _run(
-        self, url: dict, method: str = "GET", data: Optional[dict] = None, run_manager: Optional[CallbackManagerForToolRun] = None
+        self, req: dict, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
-        print(f"Making {method} request to {url} with data: {data}")
-        if url["method"].upper() == "POST":
-            response = httpx.post(url, data=url["data"])
-        else:
-            response = httpx.get(url)
-        headers = str(response.headers)
-        body = response.text
-        return f"Headers:\n{headers}\n\nBody:\n{body}"
+        data = json.loads(req)
+        print(f"Making {data['method']} request to {data['url']} with data: {data['data']}")
+        try:
+            if data and data["method"].upper() == "POST":
+                # If data is a dict, send as json, otherwise send as form/body
+                if isinstance(data["data"], dict):
+                    response = httpx.post(data["url"], json=data["data"])
+                else:
+                    response = httpx.post(data["url"], data=data["data"])
+            else:
+                response = httpx.get(data["url"])
+            headers = str(response.headers)
+            body = response.text
+            status = response.status_code
+            return f"Status Code: {status}\nHeaders:\n{headers}\n\nBody:\n{body}"
+        except Exception as e:
+            return f"HTTP request failed: {str(e)}"
 
     async def _arun(
         self, url: str, method: str = "GET", data: Optional[dict] = None, run_manager: Optional[CallbackManagerForToolRun] = None
@@ -53,7 +61,7 @@ llm = ChatBedrock(
 
 # Define instructions and prompt
 instructions = """
-You are an agent designed to make an http request to a provided url and analyze the response using a multi-step reasoning process.
+You are an agent designed to check and confirm whether any of the parameters included in the http request are vulnerable to reflected cross-site scripting by altering request parameters and analyzing responses (ignoring javascript/DOM-based XSS) using a multi-step reasoning process. 
 
 ### **Analysis Process**
 1. **Initial Request**: Make an HTTP request to the provided URL using the specified method (GET or POST).

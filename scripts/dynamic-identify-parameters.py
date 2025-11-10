@@ -25,7 +25,7 @@ llm = ChatBedrock(
 
 embeddings = BedrockEmbeddings(model_id='amazon.titan-embed-text-v2:0')
 
-faiss_db_path = "vector_databases/vtm_session.faiss"
+faiss_db_path = "../vector_databases/vtm_session.faiss"
 db = FAISS.load_local(
     faiss_db_path, 
     embeddings,

@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 load_dotenv()
 
-txt_file = 'data/dynamic_analysis_output.txt'
+txt_file = '../data/dynamic_analysis_output.txt'
 
 with open(txt_file, 'r') as f:
     content = f.read()
