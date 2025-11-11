@@ -25,18 +25,14 @@ class HttpTool(BaseTool):
     args_schema: Type[HttpInput] = HttpInput
 
     def _run(
-        self, req: dict, run_manager: Optional[CallbackManagerForToolRun] = None
+        self, req: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
         data = json.loads(req)
-        print(f"Making {data['method']} request to {data['url']} with data: {data['data']}")
+        print(f"Making {data['method']} request to {data['url']} with data: {data['data'] if 'data' in data else 'N/A'}")
         try:
-            if data and data["method"].upper() == "POST":
-                # If data is a dict, send as json, otherwise send as form/body
-                if isinstance(data["data"], dict):
-                    response = httpx.post(data["url"], json=data["data"])
-                else:
-                    response = httpx.post(data["url"], data=data["data"])
+            if data["method"].upper() == "POST":
+                response = httpx.post(data["url"], data=data["data"])
             else:
                 response = httpx.get(data["url"])
             headers = str(response.headers)
@@ -61,30 +57,32 @@ llm = ChatBedrock(
 
 # Define instructions and prompt
 instructions = """
-You are an agent designed to check and confirm whether any of the parameters included in the http request are vulnerable to reflected cross-site scripting by altering request parameters and analyzing responses (ignoring javascript/DOM-based XSS) using a multi-step reasoning process. 
+You are an agent designed to confirm whether an http request and response is vulnerable to cross-site scripting by analyzing http responses using a multi-step reasoning process. 
 
 ### **Analysis Process**
 1. **Initial Request**: Make an HTTP request to the provided URL using the specified method (GET or POST).
-2. **Response Analysis**: Analyze the response headers and body for the following information:
-   - Status Code: (int) The HTTP status code of the response
+2. **Response Analysis**: Analyze the response for possible XSS in the following locations:
    - Headers: (str) The headers of the response
    - Body: (str) The body of the response  
-   - Security Considerations: (str) Any security considerations based on the response content
-   - URLs: (list) Any URLs found in the response body
 3. **Final Response**: Return the relevant information from the HTTP request in the following format:
 
 ### **Response Format**
-- Status Code: (int) The HTTP status code of the response
-- Headers: (str) The headers of the response
-- Body: (str) The body of the response
-- Security Considerations: (str) Any security considerations based on the response content
-- URLs: (list) Any URLs found in the response body
+- URL: (str) The URL of the request
+- Parameters: (str) The body of the response
+- XSS: (str) Any identified XSS vulnerabilities (Yes or No)
+- Justification: (str) A brief justification ONLY if XSS is confirmed
 
 ### **TOOLS**
 You have access to a tool that can make an http request to a provided url. It can handle both GET and POST requests.
 
 ### **Output Format**
-Your final response must be the full response from the http request.
+Your final response must be in the above format.
+
+### **TOOLS**
+You have access to a tool that can make an http request to a provided url. It can handle both GET and POST requests.
+
+### **Output Format**
+Your final response must be in the above format.
 
 TOOLS:
 ------
