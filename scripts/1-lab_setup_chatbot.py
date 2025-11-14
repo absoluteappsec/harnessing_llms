@@ -1,5 +1,6 @@
 from langchain.prompts import PromptTemplate
 from langchain_aws import ChatBedrock
+from langchain_ollama import OllamaLLM as Ollama
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.vectorstores import FAISS
@@ -27,9 +28,14 @@ retriever = db.as_retriever(
 )
 
 # Initialize the ChatBedrock LLM
-llm = ChatBedrock(
-    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
-    model_kwargs={"temperature": 0.1},
+#llm = ChatBedrock(
+#    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
+#    model_kwargs={"temperature": 0.1},
+#)
+
+llm = Ollama(
+    model="gemma3",
+    temperature=0.1,
 )
 
 # Define the chat template with chat history
