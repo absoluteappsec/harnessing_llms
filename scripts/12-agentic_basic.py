@@ -16,12 +16,17 @@ load_dotenv()
 
 
 class SearchInput(BaseModel):
-    query: str = Field(description="should be a search query")
+    query: str = Field(
+        description="ONLY the function name - no extra words (e.g., 'can_create_project', 'login_required')"
+    )
 
 
 class CustomSearchTool(BaseTool):
-    name: str = "custom_search"
-    description: str = "Useful for when you need to answer questions about code"
+    name: str = "function_lookup"
+    description: str = (
+        "Look up a specific function definition. Input must be EXACTLY the function name with no additional words. "
+        "CORRECT: 'can_create_project' | INCORRECT: 'can_create_project function' or 'authorization check'"
+    )
     args_schema: Type[SearchInput] = SearchInput
 
     def _run(
@@ -39,7 +44,7 @@ class CustomSearchTool(BaseTool):
     async def _arun(
         self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
-        raise NotImplementedError("custom_search does not support async")
+        raise NotImplementedError("function_lookup does not support async")
 
 
 # Define tools and LLM
